@@ -1,0 +1,32 @@
+version: '3'
+services:
+  rabbit:
+    container_name: rabbit-s2
+    image: rabbitmq:3.8-management-alpine
+    restart: always
+    ports:
+      - "4369:4369"
+      - "5671-5672:5671-5672"
+      - "15671-15672:15671-15672"
+      - "15674-15675:15674-15675"
+      - "25672:25672"
+      - "35672-35682:35672-35682"
+      - "61613-61614:61613-61614"
+    environment:
+      # er cookies
+      RABBITMQ_ERLANG_COOKIE: "1a68917d-1f2f-4865-ab83-b2330a38ecd9"
+      # 用户名
+      RABBITMQ_DEFAULT_USER: "oKQ4xB"
+      # 密码
+      RABBITMQ_DEFAULT_PASS: "6pB2Zuquv5KVUhtC"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    # 指定主机名称 (rabbitmq node name 需要用)
+    hostname: "rs2"
+    # host 配置
+    extra_hosts:
+      - "rm1:19.50.79.9"
+      - "rs1:19.50.79.8"
+volumes:
+  rabbitmq-data:
+    driver: local

@@ -1,0 +1,68 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:latest
+    restart: always
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - graylog-net
+  elasticsearch:
+    image: elasticsearch:7.10.1
+    restart: always
+    volumes:
+      - es-data:/usr/share/elasticsearch/data
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    networks:
+      - graylog-net
+  graylog:
+    image: graylog/graylog:4.0
+    volumes:
+      - graylog-data:/usr/share/graylog/data
+    environment:
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://19.50.79.27:9000/
+      - GRAYLOG_ROOT_TIMEZONE=Asia/Shanghai
+      - GRAYLOG_HTTP_ENABLE_CORS=true
+      - GRAYLOG_ROOT_PASSWORD_SHA2=01e6f7427d056bf42865da0fb7c72572a551115db86a5b3cfca595add6f0679f
+    restart: always
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      # Graylog web interface and REST API
+      - 9000:9000
+      # Syslog
+      - 1514:1514
+      - 1514:1514/udp
+      # GELF
+      - 12201:12201
+      - 12201:12201/udp
+      # Custom
+      - 5555:5555
+      - 5555:5555/udp
+    networks:
+      - graylog-net
+
+networks:
+  graylog-net:
+    driver: bridge
+
+volumes:
+  mongo-data:
+    driver: local
+  es-data:
+    driver: local
+  graylog-data:
+    driver: local

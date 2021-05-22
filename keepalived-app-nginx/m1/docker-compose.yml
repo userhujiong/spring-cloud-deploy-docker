@@ -1,0 +1,14 @@
+version: "3"
+services:
+  master:
+    container_name: keep-alived-master
+    image: arcts/keepalived:1.2.2
+    environment:
+      KEEPALIVED_AUTOCONF: "false"
+    restart: always
+    volumes:
+      - "./data:/root"
+      - "./conf/keepalived.conf:/etc/keepalived/keepalived.conf"
+    cap_add:
+      - NET_ADMIN
+    network_mode: "host"
